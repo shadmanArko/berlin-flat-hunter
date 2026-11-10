@@ -7,7 +7,9 @@ from pathlib import Path
 
 import yaml
 
-SECRET_RE = re.compile(r"(\d{8,10}:[A-Za-z0-9_-]{35}|gh[pousr]_[A-Za-z0-9]{30,}|sk-ant-[A-Za-z0-9_-]{20,})")
+SECRET_RE = re.compile(
+    r"(\d{8,10}:[A-Za-z0-9_-]{35}|gh[pousr]_[A-Za-z0-9]{30,}|sk-ant-[A-Za-z0-9_-]{20,})"
+)
 
 
 def profile_values() -> list[str]:
