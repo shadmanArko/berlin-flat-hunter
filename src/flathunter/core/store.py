@@ -1,4 +1,5 @@
 """Persist RawListings: dedup into `listings`, link sources, record events and runs."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -33,8 +34,15 @@ def ensure_source(s: Session, source_id: str, name: str, tier: int) -> Source:
 
 def _raw_as_listing_view(li: Listing) -> RawListing:
     return RawListing(
-        source_id="", external_id="", url="", street=li.street, house_no=li.house_no,
-        rooms=li.rooms, size_m2=li.size_m2, rent_cold=li.rent_cold, floor=li.floor,
+        source_id="",
+        external_id="",
+        url="",
+        street=li.street,
+        house_no=li.house_no,
+        rooms=li.rooms,
+        size_m2=li.size_m2,
+        rent_cold=li.rent_cold,
+        floor=li.floor,
     )
 
 
@@ -44,14 +52,29 @@ def _fill(li: Listing, r: RawListing) -> None:
     if r.partial:
         wbs = WbsInfo()  # list-only data must not overwrite a detail-based WBS parse
     vals: dict[str, object] = {
-        "title": r.title, "landlord": r.landlord, "street": r.street, "house_no": r.house_no,
-        "postcode": r.postcode, "district": r.district, "ortsteil": r.ortsteil, "lat": r.lat,
-        "lon": r.lon, "rooms": r.rooms, "size_m2": r.size_m2, "rent_cold": r.rent_cold,
-        "operating_costs": r.operating_costs, "heating_costs": r.heating_costs,
-        "rent_warm": r.rent_warm, "energy_carrier": r.energy_carrier,
-        "construction_year": r.construction_year, "available_from": r.available_from,
-        "floor": r.floor, "floors_total": r.floors_total, "published_at": r.published_at,
-        "wbs_required": wbs.wbs_required, "special_need_required": wbs.special_need_required,
+        "title": r.title,
+        "landlord": r.landlord,
+        "street": r.street,
+        "house_no": r.house_no,
+        "postcode": r.postcode,
+        "district": r.district,
+        "ortsteil": r.ortsteil,
+        "lat": r.lat,
+        "lon": r.lon,
+        "rooms": r.rooms,
+        "size_m2": r.size_m2,
+        "rent_cold": r.rent_cold,
+        "operating_costs": r.operating_costs,
+        "heating_costs": r.heating_costs,
+        "rent_warm": r.rent_warm,
+        "energy_carrier": r.energy_carrier,
+        "construction_year": r.construction_year,
+        "available_from": r.available_from,
+        "floor": r.floor,
+        "floors_total": r.floors_total,
+        "published_at": r.published_at,
+        "wbs_required": wbs.wbs_required,
+        "special_need_required": wbs.special_need_required,
         "wbs_required_rooms": wbs.required_rooms,
     }
     for k, v in vals.items():
@@ -74,9 +97,7 @@ def upsert(s: Session, r: RawListing, now: datetime | None = None) -> UpsertResu
     now = now or datetime.now(UTC)
     # 1. same source+external id → same listing
     ls = s.scalar(
-        select(ListingSource).where(
-            ListingSource.source_id == r.source_id, ListingSource.external_id == r.external_id
-        )
+        select(ListingSource).where(ListingSource.source_id == r.source_id, ListingSource.external_id == r.external_id)
     )
     if ls is not None:
         cur = ls.listing
@@ -91,7 +112,8 @@ def upsert(s: Session, r: RawListing, now: datetime | None = None) -> UpsertResu
         if old_rent and cur.rent_cold and abs(old_rent - cur.rent_cold) > 0.005:
             s.add(
                 ListingEvent(
-                    listing_id=cur.id, kind="price_change",
+                    listing_id=cur.id,
+                    kind="price_change",
                     data={"old": old_rent, "new": cur.rent_cold},
                 )
             )
@@ -101,15 +123,12 @@ def upsert(s: Session, r: RawListing, now: datetime | None = None) -> UpsertResu
     fp = fingerprint(r) or fallback_key(r)
     li: Listing | None = s.scalar(select(Listing).where(Listing.fingerprint == fp))
     if li is None and r.street and r.house_no:
-        for cand in s.scalars(
-            select(Listing).where(Listing.street.is_not(None), Listing.status == "active")
-        ):
+        for cand in s.scalars(select(Listing).where(Listing.street.is_not(None), Listing.status == "active")):
             if is_fuzzy_match(_raw_as_listing_view(cand), r):
                 li = cand
                 break
     if li is not None:
-        s.add(ListingSource(listing_id=li.id, source_id=r.source_id,
-                            external_id=r.external_id, url=r.url))
+        s.add(ListingSource(listing_id=li.id, source_id=r.source_id, external_id=r.external_id, url=r.url))
         s.add(ListingEvent(listing_id=li.id, kind="source_added", data={"source": r.source_id}))
         _fill(li, r)
         li.last_seen_at, li.missed_runs = now, 0
@@ -120,19 +139,32 @@ def upsert(s: Session, r: RawListing, now: datetime | None = None) -> UpsertResu
     _fill(li, r)
     s.add(li)
     s.flush()
-    s.add(ListingSource(listing_id=li.id, source_id=r.source_id,
-                        external_id=r.external_id, url=r.url))
+    s.add(ListingSource(listing_id=li.id, source_id=r.source_id, external_id=r.external_id, url=r.url))
     s.add(ListingEvent(listing_id=li.id, kind="created", data={"source": r.source_id}))
     s.flush()
     return UpsertResult(li, True)
 
 
 def record_run(
-    s: Session, source_id: str, *, duration_ms: int, seen: int, new: int,
-    error: str | None = None, http_status: int | None = None,
+    s: Session,
+    source_id: str,
+    *,
+    duration_ms: int,
+    seen: int,
+    new: int,
+    error: str | None = None,
+    http_status: int | None = None,
 ) -> None:
-    s.add(Run(source_id=source_id, duration_ms=duration_ms, items_seen=seen, items_new=new,
-              error=error, http_status=http_status))
+    s.add(
+        Run(
+            source_id=source_id,
+            duration_ms=duration_ms,
+            items_seen=seen,
+            items_new=new,
+            error=error,
+            http_status=http_status,
+        )
+    )
     src = s.get(Source, source_id)
     if src is not None:
         if error:

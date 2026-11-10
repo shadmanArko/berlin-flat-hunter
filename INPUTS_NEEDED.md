@@ -22,6 +22,9 @@ Fill the TODO fields in `config/profile.yaml`:
 
 Until then: no district filter, no must-haves, any move-in date.
 
+## 3b. AV-Wohnen heating limits and source URL (optional; blocks only the heating check)
+Either send the Jobcenter's current Heizkosten-Grenzwerte table (energy carrier x building floor area) or the URL of the Jobcenter Mitte overview you got the 668.80 / 736.00 values from. Until then heating is displayed but not checked.
+
 ## 4. Contact details for landlords (blocks: M6 cover letters only)
 `household.contact.email` and `household.contact.phone` in `config/profile.yaml`; also confirm who the main contact is.
 

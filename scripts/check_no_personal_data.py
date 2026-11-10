@@ -1,5 +1,6 @@
 """Pre-commit guard: fail if staged content contains values from config/profile.yaml
 (names, address, case number, phone/email) or looks like a secret. Prints no values."""
+
 import re
 import subprocess
 import sys
@@ -7,9 +8,7 @@ from pathlib import Path
 
 import yaml
 
-SECRET_RE = re.compile(
-    r"(\d{8,10}:[A-Za-z0-9_-]{35}|gh[pousr]_[A-Za-z0-9]{30,}|sk-ant-[A-Za-z0-9_-]{20,})"
-)
+SECRET_RE = re.compile(r"(\d{8,10}:[A-Za-z0-9_-]{35}|gh[pousr]_[A-Za-z0-9]{30,}|sk-ant-[A-Za-z0-9_-]{20,})")
 
 
 def profile_values() -> list[str]:
@@ -38,7 +37,9 @@ def profile_values() -> list[str]:
 def main() -> int:
     files = subprocess.run(
         ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
-        capture_output=True, text=True, check=True,
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.split()
     bad = 0
     if "config/profile.yaml" in files:

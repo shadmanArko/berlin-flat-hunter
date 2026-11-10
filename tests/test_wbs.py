@@ -4,16 +4,25 @@ from flathunter.core.wbs import parse_wbs
 
 
 def test_degewo_special_need_sentence() -> None:
-    t = ("Für die Anmietung dieser Wohnung ist ein Wohnberechtigungsschein 100 oder 140 "
-         "mit besonderem Wohnbedarf erforderlich.")
+    t = (
+        "Für die Anmietung dieser Wohnung ist ein Wohnberechtigungsschein 100 oder 140 "
+        "mit besonderem Wohnbedarf erforderlich."
+    )
     w = parse_wbs(t)
     assert w.wbs_required is True
     assert w.special_need_required is True
     assert w.wbs_levels == [100, 140]
 
 
-@pytest.mark.parametrize("text", ["kein WBS erforderlich", "Ohne WBS", "WBS nicht erforderlich",
-                                  "Für die Anmietung der Wohnung ist kein WBS erforderlich"])
+@pytest.mark.parametrize(
+    "text",
+    [
+        "kein WBS erforderlich",
+        "Ohne WBS",
+        "WBS nicht erforderlich",
+        "Für die Anmietung der Wohnung ist kein WBS erforderlich",
+    ],
+)
 def test_no_wbs_phrases_are_not_wbs(text: str) -> None:
     w = parse_wbs(text)
     assert w.wbs_required is False

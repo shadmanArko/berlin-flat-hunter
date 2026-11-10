@@ -25,6 +25,7 @@ def read(p: str) -> str:
 
 # --- inberlinwohnen -------------------------------------------------------------------------
 
+
 def test_ibw_parse_page_fields() -> None:
     items = parse_page(read("inberlinwohnen/page1.html"))
     assert len(items) == 10
@@ -77,6 +78,7 @@ async def test_ibw_layout_change_raises_not_empty() -> None:
 
 # --- degewo ---------------------------------------------------------------------------------
 
+
 def test_degewo_list_parse() -> None:
     items = parse_list(read("degewo/list1.html"))
     assert len(items) == 10
@@ -86,8 +88,11 @@ def test_degewo_list_parse() -> None:
 
 def test_degewo_detail_special_need_listing() -> None:
     slug = "3-zimmer-wohnung-in-schoener-lage-nur-mit-wbs-mit-besonderem-wohnbedarf-140"
-    base = next(i for i in parse_list(read("degewo/list1.html")) + parse_list(read("degewo/list2.html"))
-                if i.external_id == slug)
+    base = next(
+        i
+        for i in parse_list(read("degewo/list1.html")) + parse_list(read("degewo/list2.html"))
+        if i.external_id == slug
+    )
     d = parse_detail(read("degewo/detail_3-zimmer-wohnung-in-schoener-l.html"), base)
     assert not d.partial
     assert (d.street, d.house_no, d.postcode) == ("Friedrichrodaer Straße", "125", "12249")
@@ -114,8 +119,9 @@ async def test_degewo_collector_end_to_end() -> None:
         return_value=httpx.Response(200, text=read("degewo/list1.html"))
     )
     detail_by_slug = {
-        "3-zimmer-wohnung-in-schoener-lage-nur-mit-wbs-mit-besonderem-wohnbedarf-140":
-            "degewo/detail_3-zimmer-wohnung-in-schoener-l.html",
+        "3-zimmer-wohnung-in-schoener-lage-nur-mit-wbs-mit-besonderem-wohnbedarf-140": (
+            "degewo/detail_3-zimmer-wohnung-in-schoener-l.html"
+        ),
     }
     for i in l1 + l2:
         fx = detail_by_slug.get(i.external_id)

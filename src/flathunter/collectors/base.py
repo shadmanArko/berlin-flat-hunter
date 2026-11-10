@@ -1,5 +1,6 @@
 """Collector contract (SPEC §7): idempotent, time-bounded, raises typed errors, never
 silently returns empty when items are expected."""
+
 from __future__ import annotations
 
 import asyncio
@@ -26,7 +27,9 @@ class Collector:
         self._own_client = client is None
         self.client = client or httpx.AsyncClient(
             headers={"User-Agent": USER_AGENT, "Accept-Language": "de-DE,de;q=0.9"},
-            timeout=20.0, follow_redirects=True, http2=False,
+            timeout=20.0,
+            follow_redirects=True,
+            http2=False,
         )
         self.max_pages = max_pages
         self.http_status: int | None = None

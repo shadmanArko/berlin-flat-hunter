@@ -1,5 +1,6 @@
 """Save trimmed real responses as test fixtures (manual; hits live sites politely).
 Usage: uv run python scripts/capture_fixtures.py <degewo-detail-slug> ..."""
+
 import asyncio
 import re
 import sys

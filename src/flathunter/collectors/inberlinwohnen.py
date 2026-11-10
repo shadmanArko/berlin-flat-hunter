@@ -1,5 +1,6 @@
 """inberlinwohnen.de Wohnungsfinder. The page is a Livewire app that server-renders the full
 listing JSON into `wire:snapshot` attributes, so we parse that instead of HTML."""
+
 from __future__ import annotations
 
 import html
@@ -94,14 +95,21 @@ def parse_page(page_html: str) -> list[RawListing]:
                 external_id=str(f["id"]),
                 url=str(f["deeplink"]),
                 title=title,
-                street=addr.get("street"), house_no=str(addr.get("number") or "") or None,
-                postcode=addr.get("zipCode"), district=addr.get("district"),
-                lat=parse_de_number(addr.get("lat")), lon=parse_de_number(addr.get("lon")),
-                rooms=parse_rooms(rooms_raw), size_m2=parse_de_number(f.get("area")),
-                rent_cold=rent_net, operating_costs=extra, heating_costs=heating,
+                street=addr.get("street"),
+                house_no=str(addr.get("number") or "") or None,
+                postcode=addr.get("zipCode"),
+                district=addr.get("district"),
+                lat=parse_de_number(addr.get("lat")),
+                lon=parse_de_number(addr.get("lon")),
+                rooms=parse_rooms(rooms_raw),
+                size_m2=parse_de_number(f.get("area")),
+                rent_cold=rent_net,
+                operating_costs=extra,
+                heating_costs=heating,
                 rent_warm=total,
                 energy_carrier=None if str(carrier).lower() in ("unbekannt", "none", "") else carrier,
-                floor=floor, floors_total=floors_total,
+                floor=floor,
+                floors_total=floors_total,
                 construction_year=int(year) if year else None,
                 available_from=parse_date(f.get("occupationDate") or lab.get("Bezugsfertig ab")),
                 published_at=published,

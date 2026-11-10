@@ -4,8 +4,15 @@ from flathunter.core.schema import RawListing
 
 def mk(**kw: object) -> RawListing:
     base: dict[str, object] = dict(
-        source_id="a", external_id="1", url="u", street="Beispielstraße", house_no="12",
-        rooms=3.0, size_m2=68.13, rent_cold=441.42, floor=1,
+        source_id="a",
+        external_id="1",
+        url="u",
+        street="Beispielstraße",
+        house_no="12",
+        rooms=3.0,
+        size_m2=68.13,
+        rent_cold=441.42,
+        floor=1,
     )
     base.update(kw)
     return RawListing(**base)  # type: ignore[arg-type]

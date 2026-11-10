@@ -1,4 +1,5 @@
 """German-format parsing helpers and address normalisation."""
+
 from __future__ import annotations
 
 import html

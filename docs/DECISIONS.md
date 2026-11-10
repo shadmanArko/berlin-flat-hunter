@@ -36,3 +36,15 @@ DB tests create a throwaway Postgres schema per test against `DATABASE_URL` (ski
 
 ## 2026-11-10 — gitleaks run as binary in CI
 gitleaks-action failed on a repo whose first commit has no parent (`<first>^..` range). Running the pinned binary over the full history instead.
+
+## 2026-11-10 — Eligibility ordering and noise control
+- Hard exclusions (swap-only, students/trainees, senior, wheelchair, excluded district) run first, then WBS/rooms/Berechtigungsgruppe, then rent. A rent-over flat is `ineligible` even if it also has a Wohnküche.
+- Wohnküche only forces `needs_review` when the flat already has the full entitlement (3 rooms), because only then can an extra counted room push it over; otherwise it is a note in the alert.
+- A flat that needs no WBS and has borderline rent is not alerted instantly unless `include_free_market: instant`. Reaching the Jobcenter for a free-market flat is rarely worth an instant ping.
+- Alerts are sent for all currently open, never-notified listings (not only brand-new ones), ordered by class then score, so the first live run delivers the existing P0/P1 backlog.
+
+## 2026-11-10 — Heating limits not modelled yet
+`config/rent_limits.yaml` has an empty `heating` table; heating is shown but never fails a listing. I do not have the AV-Wohnen Heizkosten-Grenzwerte table verified, so I did not invent numbers. Added to INPUTS_NEEDED.
+
+## 2026-11-10 — Telegram design
+Plain httpx client, long-polling `getUpdates` for button callbacks (no webhook/public URL needed). Callbacks from any chat other than the configured ones are ignored. Without credentials the same code runs through a console sender (dry run).

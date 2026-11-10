@@ -1,4 +1,5 @@
 """WBS requirement parser. Patterns live in config/wbs_patterns.yaml."""
+
 from __future__ import annotations
 
 import re
@@ -55,9 +56,7 @@ def parse_wbs(*texts: str | None, structured: str | None = None) -> WbsInfo:
     text_no = _any("no_wbs", text)
     text_req = _any("wbs_required", text)
     s_no = bool(re.search(r"nicht\s+erforderlich|\bnein\b|entfällt|nicht\s+notwendig", s))
-    s_req = (
-        bool(structured) and not s_no and bool(re.search(r"erforderlich|pflicht|\bja\b|mit wbs", s))
-    )
+    s_req = bool(structured) and not s_no and bool(re.search(r"erforderlich|pflicht|\bja\b|mit wbs", s))
     levels_in_text = bool(_levels(text))
 
     if s_req and not text_no:

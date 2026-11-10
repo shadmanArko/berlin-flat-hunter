@@ -1,0 +1,13 @@
+# AV-Wohnen limits (SPEC §2.6). Update yearly; no code change needed.
+valid_from: "2026-01-01"
+source: "Jobcenter Mitte overview of AV-Wohnen Richtwerte (as quoted in SPEC.md §2.6); URL to be confirmed by owner"
+borderline_factor: 1.10
+# Bruttokaltmiete (Nettokalt + Betriebskosten excl. heating/hot water), EUR/month
+bruttokalt:
+  3:
+    general: 668.80
+    social_housing: 736.00
+# Heating limits depend on energy carrier and building floor area. Not populated yet:
+# until filled, heating is reported as "unknown" and never fails a listing.
+# Format when known:  heating: { fernwaerme: [{max_area: 250, limit_per_m2: 1.23}, ...] }
+heating: {}

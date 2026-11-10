@@ -10,10 +10,21 @@ from flathunter.core.store import ensure_source, mark_missing, upsert
 
 def flat(source: str, ext: str, **kw: object) -> RawListing:
     base: dict[str, object] = dict(
-        source_id=source, external_id=ext, url=f"https://example.test/{ext}", title="3-Zimmer",
-        street="Beispielstraße", house_no="12", postcode="10115", rooms=3.0, size_m2=68.13,
-        rent_cold=441.42, operating_costs=158.29, heating_costs=100.0, floor=1,
-        wbs_text="erforderlich", description="nur mit WBS 140 mit besonderem Wohnbedarf",
+        source_id=source,
+        external_id=ext,
+        url=f"https://example.test/{ext}",
+        title="3-Zimmer",
+        street="Beispielstraße",
+        house_no="12",
+        postcode="10115",
+        rooms=3.0,
+        size_m2=68.13,
+        rent_cold=441.42,
+        operating_costs=158.29,
+        heating_costs=100.0,
+        floor=1,
+        wbs_text="erforderlich",
+        description="nur mit WBS 140 mit besonderem Wohnbedarf",
     )
     base.update(kw)
     return RawListing(**base)  # type: ignore[arg-type]
@@ -58,8 +69,19 @@ def test_partial_update_keeps_wbs_and_details(sessions: sessionmaker[Session]) -
     with sessions() as s:
         setup(s)
         upsert(s, flat("a", "1"))
-        r = upsert(s, flat("a", "1", partial=True, wbs_text=None, description="", rent_cold=None,
-                           operating_costs=None, heating_costs=None))
+        r = upsert(
+            s,
+            flat(
+                "a",
+                "1",
+                partial=True,
+                wbs_text=None,
+                description="",
+                rent_cold=None,
+                operating_costs=None,
+                heating_costs=None,
+            ),
+        )
         assert r.listing.special_need_required is True and r.listing.rent_gross_cold == 599.71
 
 

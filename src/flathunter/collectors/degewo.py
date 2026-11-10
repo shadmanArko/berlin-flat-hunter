@@ -1,5 +1,6 @@
 """degewo.de Immosuche: server-rendered list pages (10 per page, no newest-first sort, so all
 pages are crawled) plus one detail page per listing that we have not seen before."""
+
 from __future__ import annotations
 
 import asyncio
@@ -63,13 +64,23 @@ def parse_list(page_html: str) -> list[RawListing]:
         avail = d.get("frei ab", "")
         out.append(
             RawListing(
-                source_id="degewo", external_id=slug, url=urljoin(BASE, href), title=_txt(a),
-                street=street, house_no=no, ortsteil=ortsteil.strip() or None, landlord="degewo",
-                rooms=parse_rooms(d.get("Zimmer")), size_m2=parse_de_number(d.get("m²")),
+                source_id="degewo",
+                external_id=slug,
+                url=urljoin(BASE, href),
+                title=_txt(a),
+                street=street,
+                house_no=no,
+                ortsteil=ortsteil.strip() or None,
+                landlord="degewo",
+                rooms=parse_rooms(d.get("Zimmer")),
+                size_m2=parse_de_number(d.get("m²")),
                 rent_warm=parse_de_number(d.get("Warmmiete")),
-                available_from=parse_date(avail), available_now=is_now(avail),
+                available_from=parse_date(avail),
+                available_now=is_now(avail),
                 features=[_txt(t) for t in card.css(".c-tag__label")],
-                description=_txt(a), raw_text=_txt(card), partial=True,
+                description=_txt(a),
+                raw_text=_txt(card),
+                partial=True,
             )
         )
     return out
@@ -131,22 +142,30 @@ def parse_detail(page_html: str, base: RawListing) -> RawListing:
     wbs_signals = "WBS erforderlich" if wbs_required else None
     avail = d.get("frei ab", "")
 
-    return base.model_copy(update={
-        "street": street, "house_no": no, "postcode": plz, "partial": False,
-        "rent_cold": rent_cold, "operating_costs": bk_cold, "heating_costs": bk_warm,
-        "rent_warm": parse_de_number(d.get("Warmmiete")) or base.rent_warm,
-        "rooms": parse_rooms(d.get("Zimmer")) or base.rooms,
-        "size_m2": parse_de_number(d.get("Wohnfläche")) or base.size_m2,
-        "floor": floor, "floors_total": total,
-        "construction_year": int(year) if year else None,
-        "energy_carrier": d.get("Primärer Energieträger"),
-        "available_from": parse_date(avail) or base.available_from,
-        "available_now": is_now(avail) or base.available_now,
-        "wbs_text": wbs_signals,
-        "features": sorted({f for f in feats if f}),
-        "description": " ".join(x for x in (base.title, description, hints) if x),
-        "raw_text": text,
-    })
+    return base.model_copy(
+        update={
+            "street": street,
+            "house_no": no,
+            "postcode": plz,
+            "partial": False,
+            "rent_cold": rent_cold,
+            "operating_costs": bk_cold,
+            "heating_costs": bk_warm,
+            "rent_warm": parse_de_number(d.get("Warmmiete")) or base.rent_warm,
+            "rooms": parse_rooms(d.get("Zimmer")) or base.rooms,
+            "size_m2": parse_de_number(d.get("Wohnfläche")) or base.size_m2,
+            "floor": floor,
+            "floors_total": total,
+            "construction_year": int(year) if year else None,
+            "energy_carrier": d.get("Primärer Energieträger"),
+            "available_from": parse_date(avail) or base.available_from,
+            "available_now": is_now(avail) or base.available_now,
+            "wbs_text": wbs_signals,
+            "features": sorted({f for f in feats if f}),
+            "description": " ".join(x for x in (base.title, description, hints) if x),
+            "raw_text": text,
+        }
+    )
 
 
 def build_wbs_filter(page_html: str) -> tuple[str, dict[str, str]]:

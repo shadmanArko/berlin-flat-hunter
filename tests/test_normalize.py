@@ -15,8 +15,17 @@ from flathunter.core.normalize import (
 
 @pytest.mark.parametrize(
     ("raw", "expected"),
-    [("1.234,56 €", 1234.56), ("61,50", 61.5), (721.85, 721.85), ("498,90 €", 498.9),
-     ("1.339,79", 1339.79), ("unbekannt", None), (None, None), ("2.500", 2500.0), ("&euro; 12,5", 12.5)],
+    [
+        ("1.234,56 €", 1234.56),
+        ("61,50", 61.5),
+        (721.85, 721.85),
+        ("498,90 €", 498.9),
+        ("1.339,79", 1339.79),
+        ("unbekannt", None),
+        (None, None),
+        ("2.500", 2500.0),
+        ("&euro; 12,5", 12.5),
+    ],
 )
 def test_parse_de_number(raw: object, expected: float | None) -> None:
     assert parse_de_number(raw) == expected

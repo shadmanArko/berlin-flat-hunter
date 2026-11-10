@@ -1,0 +1,17 @@
+# Weights (sum need not be 100). Documented in docs/SCORING.md
+weights:
+  rooms: 40
+  size: 20
+  headroom: 15
+  facilities: 15
+  location: 5
+  availability: 5
+rooms_points: {3: 100, 2.5: 80, 2: 60, 1.5: 35, 1: 20}
+size_cap_m2: 90
+headroom_cap_eur: 150
+facilities:
+  elevator: 3
+  balcony: 3
+  fitted_kitchen: 2
+  bath_window: 2
+  modern_heating: 2

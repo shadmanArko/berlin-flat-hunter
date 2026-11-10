@@ -1,4 +1,5 @@
 """SQLAlchemy 2 schema (SPEC §6). M1 subset: sources, runs, listings, listing_sources, events."""
+
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -114,3 +115,30 @@ class ListingEvent(Base):
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     kind: Mapped[str] = mapped_column(String(24))  # created | price_change | relisted | gone | source_added
     data: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    listing_id: Mapped[int] = mapped_column(ForeignKey("listings.id"), index=True)
+    channel: Mapped[str] = mapped_column(String(24))
+    kind: Mapped[str] = mapped_column(String(24))  # instant | digest | needs_review | source_added
+    sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    message_id: Mapped[str | None] = mapped_column(String(64))
+
+
+class UserAction(Base):
+    __tablename__ = "user_actions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    listing_id: Mapped[int] = mapped_column(ForeignKey("listings.id"), index=True)
+    action: Mapped[str] = mapped_column(String(24))
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    note: Mapped[str | None] = mapped_column(Text)
+
+
+class KeyValue(Base):
+    """Small runtime state, e.g. Telegram getUpdates offset."""
+
+    __tablename__ = "kv"
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    value: Mapped[str] = mapped_column(Text)

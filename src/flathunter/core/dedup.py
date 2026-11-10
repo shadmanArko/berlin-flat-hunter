@@ -1,4 +1,5 @@
 """Fingerprinting and fuzzy matching so one flat is one listing across sources."""
+
 from __future__ import annotations
 
 import hashlib
