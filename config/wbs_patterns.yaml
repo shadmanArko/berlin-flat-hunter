@@ -1,0 +1,27 @@
+# Patterns are matched case-insensitively against title + description + structured WBS fields.
+# Expand as real listings show new wording. (SPEC §2.2)
+special_need:
+  - 'besonder(?:em|er)\s+wohnbedarf'
+  - 'bes\.\s*wohnbedarf'
+  - 'dringlichkeit'
+  - 'wbs[\s-]*d\b'
+  - 'sonderwohnbedarf'
+  - 'wbs\s*(?:\d{3}[\s/,\-]*)+b\.?\s?w\b'   # degewo shorthand: "WBS 100 bW"
+# Explicit "no WBS needed" wins over any other mention.
+no_wbs:
+  - 'kein(?:en)?\s+wbs'
+  - 'ohne\s+wbs'
+  - 'wbs\s+nicht\s+erforderlich'
+  - 'wbs\s+ist\s+nicht\s+erforderlich'
+  - 'keinen\s+wohnberechtigungsschein'
+  - 'ohne\s+wohnberechtigungsschein'
+wbs_required:
+  - '\bwbs\b'
+  - 'wohnberechtigungsschein'
+  - 'wbs[\s-]*pflicht'
+# A level token, e.g. "WBS 100", "WBS 100/140", "WBS bis 220", "WBS 160-220", "WBS 100 oder 140".
+levels: [100, 140, 160, 180, 220]
+# Room count required by the WBS: "WBS für 3 Räume", "WBS mit mind. 2 Räumen", "Raumanzahl laut WBS"
+required_rooms:
+  - 'wbs\s*(?:\d{3}[\s/,\-]*)*\s*(?:f(?:ü|ue)r|mit(?:\s+mind(?:\.|estens)?)?)\s+(\d)(?:[.,]5)?\s*(?:r(?:ä|ae)ume|raum|zimmer|zi\.)'
+  - 'f(?:ü|ue)r\s+(\d)\s+r(?:ä|ae)ume'

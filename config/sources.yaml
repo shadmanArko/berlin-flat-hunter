@@ -1,0 +1,23 @@
+# Source registry (SPEC §5). robots/ToS statuses verified 2026-11-10.
+sources:
+  - id: inberlinwohnen
+    name: inberlinwohnen.de Wohnungsfinder
+    tier: 1
+    method: livewire_snapshot_json
+    url: https://www.inberlinwohnen.de/wohnungsfinder/
+    interval_minutes: 5
+    max_pages: 3
+    robots: "allow all (User-agent: *, Disallow: empty), checked 2026-11-10"
+    tos: "not reviewed in depth; polite polling only (>=2s between requests, 5 min interval)"
+    enabled: true
+    notes: "Aggregates degewo, Gewobag, HOWOGE, Stadt und Land, WBM, GESOBAU, berlinovo. Newest first. Full listing JSON is embedded in Livewire wire:snapshot attributes."
+  - id: degewo
+    name: degewo Immosuche
+    tier: 1
+    method: html_list_plus_detail
+    url: https://www.degewo.de/immosuche
+    interval_minutes: 5
+    robots: "Disallow only /typo3/, /typo3_src/, importexport; /immosuche allowed. checked 2026-11-10"
+    tos: "not reviewed in depth"
+    enabled: true
+    notes: "No newest-first sort: all pages are crawled; detail pages fetched only for unseen listings."
