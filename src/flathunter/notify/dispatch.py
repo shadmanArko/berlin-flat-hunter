@@ -3,13 +3,15 @@ process button callbacks."""
 
 from __future__ import annotations
 
+from html import escape
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from flathunter.apply.letter import render_checklist, render_letter
 from flathunter.core.models import KeyValue, Listing, Notification, UserAction
-from flathunter.core.profile import Profile
+from flathunter.core.profile import Profile, load_profile
 from flathunter.core.scoring import CLASS_ORDER
 from flathunter.notify.render import render_alert
 from flathunter.notify.telegram import ConsoleSender, Sender, TelegramSender
@@ -84,11 +86,12 @@ async def dispatch_new(s: Session, sender: Sender, profile: Profile) -> int:
 ACTION_REPLY = {
     "applied": "✅ als beworben gespeichert",
     "not_interested": "👎 ausgeblendet",
-    "letter": "📝 Anschreiben-Generator kommt in M6",
+    "letter": "📝 Anschreiben kommt gleich im Chat",
 }
 
 
-async def handle_callbacks(s: Session, tg: TelegramSender) -> int:
+async def handle_callbacks(s: Session, tg: TelegramSender, profile: Profile | None = None) -> int:
+    profile = profile or load_profile()
     row = s.get(KeyValue, "tg_offset")
     offset = int(row.value) if row else 0
     updates: list[dict[str, Any]] = await tg.get_updates(offset)
@@ -101,6 +104,13 @@ async def handle_callbacks(s: Session, tg: TelegramSender) -> int:
         if action in ("applied", "not_interested"):
             s.add(UserAction(listing_id=int(lid), action=action))
         await tg.answer_callback(cb["id"], ACTION_REPLY.get(action, "ok"))
+        if action == "letter":
+            li = s.get(Listing, int(lid))
+            if li is not None:
+                chat = str(cb["message"]["chat"]["id"])
+                body = escape(render_letter(li, profile))
+                await tg.reply(chat, f"📝 <b>Anschreiben</b> (zum Kopieren)\n<pre>{body}</pre>")
+                await tg.reply(chat, "📎 <b>Unterlagen</b>\n" + escape(render_checklist(li, profile)))
     if row:
         row.value = str(offset)
     else:

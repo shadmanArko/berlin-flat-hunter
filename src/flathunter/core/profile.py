@@ -27,6 +27,15 @@ class Profile(BaseModel):
     alert_min_size_m2: float = 45
     move_in_earliest: date | None = None
     move_in_latest: date | None = None
+    contact_name: str | None = None
+    contact_email: str | None = None
+    contact_phone: str | None = None
+    documents_folder: str | None = None
+
+
+def _s(v: object) -> str | None:
+    t = str(v).strip() if v is not None else ""
+    return None if not t or t.upper() == "TODO" else t
 
 
 def _d(v: object) -> date | None:
@@ -59,6 +68,10 @@ def load_profile(path: Path | None = None) -> Profile:
         must_have=search.get("must_have") or [],
         alert_min_rooms=search.get("alert_min_rooms", 2),
         alert_min_size_m2=search.get("alert_min_size_m2", 45),
+        contact_name=_s(raw.get("household", {}).get("contact", {}).get("name")),
+        contact_email=_s(raw.get("household", {}).get("contact", {}).get("email")),
+        contact_phone=_s(raw.get("household", {}).get("contact", {}).get("phone")),
+        documents_folder=_s(raw.get("documents_folder")),
         move_in_earliest=_d(search.get("move_in_earliest")),
         move_in_latest=_d(search.get("move_in_latest")),
     )
