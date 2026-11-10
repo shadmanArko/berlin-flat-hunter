@@ -1,0 +1,28 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_USER: flat, POSTGRES_PASSWORD: flat, POSTGRES_DB: flat}
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U flat" --health-interval 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://flat:flat@localhost:5433/flat
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run mypy
+      - run: uv run pytest
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: gitleaks/gitleaks-action@v2
+        env: {GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"}

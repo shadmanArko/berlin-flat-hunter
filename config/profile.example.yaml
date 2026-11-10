@@ -1,0 +1,28 @@
+# Copy to config/profile.yaml (git-ignored). All values below are fake.
+household:
+  size: 3
+  members: ["Erika Mustermann", "Max Mustermann", "Kind Mustermann"]
+  current_address: "Musterstraße 1, 10115 Berlin"
+  contact: {name: "Erika Mustermann", email: "erika@example.com", phone: "+49 30 000000"}
+wbs:
+  level: 100
+  special_need: true
+  berechtigungsgruppe: "J"
+  max_rooms: 3
+  issued_by: "Bezirksamt Beispiel"
+  issued_on: "2026-01-01"
+  valid_until: "2027-12-31"
+  reference: "00/X/X/000000-00-00"
+rent_policy: av_wohnen
+rent_limit_override: null
+search:
+  target_rooms: 3
+  prefer_larger_m2: true
+  include_free_market: digest_only
+  districts_preferred: []
+  districts_excluded: []
+  must_have: []
+  move_in_earliest: null
+  move_in_latest: null
+documents_folder: null
+apply: {one_tap_sources: []}
