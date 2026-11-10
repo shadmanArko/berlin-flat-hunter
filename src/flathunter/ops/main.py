@@ -91,6 +91,9 @@ def main() -> None:
 
         Path("logs").mkdir(exist_ok=True)
         logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+        # httpx logs full URLs and Telegram's contain the bot token: never let that reach a log.
+        for noisy in ("httpx", "httpcore"):
+            logging.getLogger(noisy).setLevel(logging.WARNING)
         tg = TelegramSender.from_env()
         asyncio.run(run_watcher(get_session_factory(), tg or ConsoleSender(), tg))
         return

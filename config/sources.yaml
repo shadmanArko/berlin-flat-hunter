@@ -21,3 +21,24 @@ sources:
     tos: "not reviewed in depth"
     enabled: true
     notes: "No newest-first sort: all pages are crawled; detail pages fetched only for unseen listings."
+  - id: gewobag
+    name: gewobag Mietangebote
+    tier: 1
+    method: html_list_plus_detail
+    url: https://www.gewobag.de/fuer-mietinteressentinnen/mietangebote/
+    interval_minutes: 5
+    max_pages: 2
+    robots: "only Googlebot-Image restricted, checked 2026-11-10"
+    tos: "not reviewed in depth"
+    enabled: true
+    notes: "sort-by=recent; parking/commercial offers skipped."
+  # ---- candidates, verified reachable + robots.txt allows (2026-11-10); no collector yet ----
+  - {id: gesobau, name: GESOBAU, tier: 1, method: tbd, url: "https://www.gesobau.de", interval_minutes: 5, enabled: false, notes: "city-owned; already covered via inberlinwohnen"}
+  - {id: berlinovo, name: berlinovo, tier: 1, method: tbd, url: "https://www.berlinovo.de", interval_minutes: 5, enabled: false, notes: "city-owned; already covered via inberlinwohnen; apartments/furnished"}
+  - {id: howoge, name: HOWOGE, tier: 1, method: tbd, url: "https://www.howoge.de/wohnungen-gewerbe/wohnungssuche.html", interval_minutes: 5, enabled: false, notes: "robots forbids URLs containing cHash"}
+  - {id: wbm, name: WBM, tier: 1, method: tbd, url: "https://www.wbm.de/wohnungen-berlin/angebote/", interval_minutes: 5, enabled: false, notes: "server-rendered; simple"}
+  - {id: stadtundland, name: Stadt und Land, tier: 1, method: tbd, url: "https://stadtundland.de/wohnungssuche", interval_minutes: 5, enabled: false, notes: "needs XHR discovery"}
+  - {id: vonovia, name: Vonovia, tier: 2, method: tbd, url: "https://www.vonovia.de", interval_minutes: 20, enabled: false, notes: "private; check whether Berlin WBS flats appear; exposé PDFs disallowed by robots"}
+  - {id: deutschewohnen, name: Deutsche Wohnen, tier: 2, method: tbd, url: "https://www.deutsche-wohnen.com", interval_minutes: 20, enabled: false, notes: "Vonovia group"}
+  - {id: covivio, name: Covivio, tier: 2, method: tbd, url: "https://www.covivio.de", interval_minutes: 20, enabled: false}
+  - {id: heimstaden, name: Heimstaden, tier: 2, method: tbd, url: "https://www.heimstaden.com", interval_minutes: 20, enabled: false}
