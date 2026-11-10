@@ -100,6 +100,10 @@ def classify(f: dict[str, Any], profile: Profile, cfg: dict[str, Any] | None = N
 
     rooms = f.get("rooms")
     if wbs is None:
+        # Unknown WBS status: even the more generous social-housing limit must hold, otherwise it is moot.
+        lenient = check_rent(f.get("rent_cold"), f.get("operating_costs"), True, profile, cfg)
+        if lenient.status == "rent_over":
+            return Verdict("ineligible", "rent_over_av_wohnen", lenient, notes)
         return out("needs_review", "wbs_status_unclear")
     if wbs:
         if f.get("special_need_required") and not profile.special_need:

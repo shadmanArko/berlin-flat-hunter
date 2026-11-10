@@ -104,3 +104,9 @@ def test_parking_and_commercial_are_not_apartments() -> None:
         assert v.eligibility_class == "ineligible" and v.reason == "not_an_apartment"
     v = classify(f(rooms=None, size_m2=None, rent_cold=57.5, operating_costs=None, title="x"), P)
     assert v.reason == "not_an_apartment"
+
+
+def test_unknown_wbs_but_far_over_rent_is_ineligible() -> None:
+    v = classify(f(wbs_required=None, rent_cold=800.0, operating_costs=216.0), P)
+    assert v.eligibility_class == "ineligible" and v.reason == "rent_over_av_wohnen"
+    assert classify(f(wbs_required=None), P).eligibility_class == "needs_review"
