@@ -18,8 +18,9 @@ FX = Path("tests/fixtures")
 IBW = "https://www.inberlinwohnen.de/wohnungsfinder/"
 
 
-def trim_degewo(html: str) -> str:
-    html = re.sub(r"<(script|style|svg|noscript)\b.*?</\1>", "", html, flags=re.S | re.I)
+def trim_degewo(html: str, keep_svg: bool = False) -> str:
+    tags = "script|style|noscript" if keep_svg else "script|style|svg|noscript"
+    html = re.sub(rf"<({tags})\b.*?</\1>", "", html, flags=re.S | re.I)
     return re.sub(r"<!--.*?-->", "", html, flags=re.S)
 
 
@@ -35,7 +36,7 @@ async def capture_gewobag() -> None:
     try:
         page = await c.get(LIST_URL, params=LIST_PARAMS)
         (FX / "gewobag").mkdir(exist_ok=True)
-        (FX / "gewobag" / "list1.html").write_text(trim_degewo(page))
+        (FX / "gewobag" / "list1.html").write_text(trim_degewo(page, keep_svg=True))
         for i in parse_list(page)[:2]:
             (FX / "gewobag" / f"detail_{i.external_id}.html").write_text(trim_degewo(await c.get(i.url)))
     finally:
