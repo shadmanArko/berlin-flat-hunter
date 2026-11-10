@@ -33,3 +33,6 @@ When a collector only has list-page data (known listing, no detail fetch) it set
 
 ## 2026-11-10 — Test isolation
 DB tests create a throwaway Postgres schema per test against `DATABASE_URL` (skipped if Postgres is unreachable); CI provides a Postgres 16 service.
+
+## 2026-11-10 — gitleaks run as binary in CI
+gitleaks-action failed on a repo whose first commit has no parent (`<first>^..` range). Running the pinned binary over the full history instead.
