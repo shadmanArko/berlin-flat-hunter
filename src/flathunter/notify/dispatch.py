@@ -12,7 +12,7 @@ from flathunter.core.models import KeyValue, Listing, Notification, UserAction
 from flathunter.core.profile import Profile
 from flathunter.core.scoring import CLASS_ORDER
 from flathunter.notify.render import render_alert
-from flathunter.notify.telegram import Sender, TelegramSender
+from flathunter.notify.telegram import ConsoleSender, Sender, TelegramSender
 
 
 def alertable(cls: str | None, profile: Profile, li: Listing | None = None) -> bool:
@@ -68,7 +68,10 @@ async def dispatch_new(s: Session, sender: Sender, profile: Profile) -> int:
                 s.add(
                     Notification(listing_id=li.id, channel="telegram", kind="source_added", message_id=prior.message_id)
                 )
-        s.commit()
+        if not isinstance(sender, ConsoleSender):  # dry runs must not mark flats as alerted
+            s.commit()
+        else:
+            s.rollback()
     return sent
 
 

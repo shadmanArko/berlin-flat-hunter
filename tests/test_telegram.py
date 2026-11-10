@@ -14,6 +14,7 @@ async def test_send_to_multiple_chats_and_edit_all() -> None:
 
     route = respx.post(url__regex=r"https://api.telegram.org/bottok/\w+").mock(side_effect=reply)
     tg = TelegramSender("tok", "11, 22", "33")
+    tg.send_gap_s = 0
     ids = await tg.send("x", [], loud=False, silent=False)
     assert ids == "11:1,22:2" and tg.all_chat_ids == {"11", "22", "33"}
     assert await tg.send("x", [], loud=True, silent=False) == "33:3"

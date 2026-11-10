@@ -8,9 +8,22 @@ from flathunter.core.schema import RawListing
 from flathunter.core.store import ensure_source, upsert
 from flathunter.notify.dispatch import dispatch_new
 from flathunter.notify.render import render_alert
-from flathunter.notify.telegram import ConsoleSender
 
 P = Profile()
+
+
+class ConsoleSender:
+    """Recording fake (not the real ConsoleSender, which deliberately persists nothing)."""
+
+    def __init__(self) -> None:
+        self.sent: list[str] = []
+
+    async def send(self, text: str, buttons: object, *, loud: bool, silent: bool) -> str:
+        self.sent.append(text)
+        return f"fake:{len(self.sent)}"
+
+    async def edit(self, message_id: str, text: str, buttons: object, *, loud: bool) -> None:
+        pass
 
 
 def flat(source: str, ext: str, **kw: object) -> RawListing:

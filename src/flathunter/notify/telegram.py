@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 from typing import Any, Protocol
 
@@ -22,6 +23,7 @@ class TelegramSender:
         self, token: str, chat_id: str, p0_chat_id: str | None = None, client: httpx.AsyncClient | None = None
     ):
         self.token, self.chat_id, self.p0_chat_id = token, chat_id, p0_chat_id or None
+        self.send_gap_s = 3.0
         self.client = client or httpx.AsyncClient(timeout=30)
 
     @classmethod
@@ -32,11 +34,17 @@ class TelegramSender:
         return cls(t, c, os.environ.get("TELEGRAM_P0_CHAT_ID"))
 
     async def call(self, method: str, **params: Any) -> Any:
-        r = await self.client.post(f"https://api.telegram.org/bot{self.token}/{method}", json=params)
-        data = r.json()
-        if not data.get("ok"):
+        for attempt in range(4):
+            r = await self.client.post(f"https://api.telegram.org/bot{self.token}/{method}", json=params)
+            data = r.json()
+            if data.get("ok"):
+                return data["result"]
+            wait = (data.get("parameters") or {}).get("retry_after")
+            if r.status_code == 429 and wait and attempt < 3:
+                await asyncio.sleep(min(int(wait) + 1, 90))  # Telegram flood control: wait, then retry
+                continue
             raise TelegramError(f"{method}: {data.get('description')}")
-        return data["result"]
+        raise TelegramError(f"{method}: gave up after retries")
 
     @staticmethod
     def _ids(value: str | None) -> list[str]:
@@ -53,6 +61,7 @@ class TelegramSender:
         """Send to every recipient; returns 'chat:msg,chat:msg' so the alert can be edited everywhere."""
         refs: list[str] = []
         for chat in self._recipients(loud):
+            await asyncio.sleep(self.send_gap_s)  # stay well under Telegram's per-group limit
             res = await self.call(
                 "sendMessage",
                 chat_id=chat,
@@ -68,6 +77,14 @@ class TelegramSender:
     async def edit(self, message_id: str, text: str, buttons: list[list[dict[str, str]]], *, loud: bool) -> None:
         for ref in message_id.split(","):
             chat, mid = ref.split(":")
+            try:
+                await self._edit_one(chat, mid, text, buttons)
+            except TelegramError as e:
+                if "not modified" not in str(e):  # identical content is fine
+                    raise
+
+    async def _edit_one(self, chat: str, mid: str, text: str, buttons: list[list[dict[str, str]]]) -> None:
+        if True:
             await self.call(
                 "editMessageText",
                 chat_id=chat,
