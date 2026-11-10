@@ -17,12 +17,16 @@ from flathunter.notify.render import render_alert
 from flathunter.notify.telegram import ConsoleSender, Sender, TelegramSender
 
 
-def alertable(cls: str | None, profile: Profile, li: Listing | None = None) -> bool:
-    # Too small to be a realistic home for the household: kept in the DB/digest, no instant alert.
-    if li is not None and (
+def too_small(li: Listing, profile: Profile) -> bool:
+    return bool(
         (li.rooms is not None and li.rooms < profile.alert_min_rooms)
         or (li.size_m2 is not None and li.size_m2 < profile.alert_min_size_m2)
-    ):
+    )
+
+
+def alertable(cls: str | None, profile: Profile, li: Listing | None = None) -> bool:
+    # Too small to be a realistic home for the household: kept in the DB/digest, no instant alert.
+    if li is not None and too_small(li, profile):
         return False
     # Borderline rent on a flat that needs no WBS is a digest-level item unless free-market is "instant".
     if (

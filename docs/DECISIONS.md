@@ -57,3 +57,6 @@ Owner does not want to pay for hosting. The watcher runs on the owner's Mac via 
 - Scheduler is a plain asyncio loop per source (no APScheduler): per-source interval from `config/sources.yaml`, 5 min 06–23 Berlin and 15 min at night, ±20 % jitter, 20 s stagger, 180 s run timeout, loops never die.
 - No HTTP `/health` endpoint: nothing external polls it in local mode. `logs/health.json` plus Telegram warnings (3 consecutive failures, and recovery) replace it.
 - VPS, GitHub-issue-on-failure and backups from M3 are postponed.
+
+## 2026-11-10 — Digests via Telegram only
+Morning (07:00, full: new, still-open, applications this week, excluded counts, source health) plus short summaries at 12:30 and 19:00 (sent only when something is new). Email digest from the spec is skipped: it needs an SMTP account and adds nothing a Telegram message does not. If the Mac is asleep at a slot, the digest is sent on wake when within 3 hours (otherwise skipped, the next one covers it).

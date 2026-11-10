@@ -8,7 +8,7 @@ import json
 import logging
 import random
 from dataclasses import dataclass
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -149,6 +149,38 @@ async def source_loop(
         await asyncio.sleep(interval_seconds(float(cfg.get("interval_minutes", 5)), sched))
 
 
+def due_digests(
+    digests: list[dict[str, str]], now: datetime, sent: set[str], catchup_hours: float
+) -> list[tuple[str, str]]:
+    """Slots (key, kind) that passed today, within the catch-up window, and were not sent yet."""
+    now = now.astimezone(BERLIN)
+    out = []
+    for d in digests:
+        slot = datetime.combine(now.date(), time.fromisoformat(d["time"]), tzinfo=BERLIN)
+        key = f"{now.date()}-{d['time']}"
+        if slot <= now <= slot + timedelta(hours=catchup_hours) and key not in sent:
+            out.append((key, d["kind"]))
+    return out
+
+
+async def digest_loop(sessions: sessionmaker[Session], sender: Sender, profile: Profile) -> None:
+    from flathunter.notify.digest import _get, _set, send_digest
+
+    raw = yaml.safe_load((ROOT / "config" / "schedule.yaml").read_text())
+    while True:
+        try:
+            with sessions() as s:
+                sent = set((_get(s, "digests_sent") or "").split(","))
+                for key, kind in due_digests(raw["digests"], datetime.now(BERLIN), sent, raw["digest_catchup_hours"]):
+                    await send_digest(s, sender, profile, kind, raw["digest_max_per_section"])
+                    sent = {x for x in sent if x[:10] == key[:10]} | {key}
+                    _set(s, "digests_sent", ",".join(sorted(sent)))
+                    s.commit()
+        except Exception:
+            log.exception("digest failed")
+        await asyncio.sleep(60)
+
+
 async def bot_loop(sessions: sessionmaker[Session], tg: TelegramSender) -> None:
     backoff = 1.0
     while True:
@@ -169,6 +201,7 @@ async def run_watcher(sessions: sessionmaker[Session], sender: Sender, tg: Teleg
         asyncio.create_task(source_loop(sid, cfg, sessions, profile, sender, sched, health, stagger_s=i * 20.0))
         for i, (sid, cfg) in enumerate(sources.items())
     ]
+    tasks.append(asyncio.create_task(digest_loop(sessions, sender, profile)))
     if tg is not None:
         tasks.append(asyncio.create_task(bot_loop(sessions, tg)))
     log.info("watcher started: %s", ", ".join(sources))

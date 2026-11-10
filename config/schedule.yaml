@@ -5,3 +5,9 @@ jitter: 0.2            # ±20 % on every interval
 night_interval_minutes: 15
 run_timeout_seconds: 180
 failure_alert_after: 3       # consecutive failures before a Telegram warning
+digests:
+  - {time: "07:00", kind: morning}   # full overview
+  - {time: "12:30", kind: summary}   # only what is new since the last digest
+  - {time: "19:00", kind: summary}
+digest_catchup_hours: 3   # if the Mac was asleep at the slot, still send when it wakes within this window
+digest_max_per_section: 8
