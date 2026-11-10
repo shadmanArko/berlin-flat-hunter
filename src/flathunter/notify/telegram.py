@@ -38,33 +38,45 @@ class TelegramSender:
             raise TelegramError(f"{method}: {data.get('description')}")
         return data["result"]
 
-    def _chat(self, loud: bool) -> str:
-        return (self.p0_chat_id or self.chat_id) if loud else self.chat_id
+    @staticmethod
+    def _ids(value: str | None) -> list[str]:
+        return [x.strip() for x in (value or "").split(",") if x.strip()]
+
+    @property
+    def all_chat_ids(self) -> set[str]:
+        return set(self._ids(self.chat_id)) | set(self._ids(self.p0_chat_id))
+
+    def _recipients(self, loud: bool) -> list[str]:
+        return (self._ids(self.p0_chat_id) if loud else []) or self._ids(self.chat_id)
 
     async def send(self, text: str, buttons: list[list[dict[str, str]]], *, loud: bool, silent: bool) -> str:
-        chat = self._chat(loud)
-        res = await self.call(
-            "sendMessage",
-            chat_id=chat,
-            text=text,
-            parse_mode="HTML",
-            disable_web_page_preview=True,
-            disable_notification=silent,
-            reply_markup={"inline_keyboard": buttons},
-        )
-        return f"{chat}:{res['message_id']}"
+        """Send to every recipient; returns 'chat:msg,chat:msg' so the alert can be edited everywhere."""
+        refs: list[str] = []
+        for chat in self._recipients(loud):
+            res = await self.call(
+                "sendMessage",
+                chat_id=chat,
+                text=text,
+                parse_mode="HTML",
+                disable_web_page_preview=True,
+                disable_notification=silent,
+                reply_markup={"inline_keyboard": buttons},
+            )
+            refs.append(f"{chat}:{res['message_id']}")
+        return ",".join(refs)
 
     async def edit(self, message_id: str, text: str, buttons: list[list[dict[str, str]]], *, loud: bool) -> None:
-        chat, mid = message_id.split(":")
-        await self.call(
-            "editMessageText",
-            chat_id=chat,
-            message_id=int(mid),
-            text=text,
-            parse_mode="HTML",
-            disable_web_page_preview=True,
-            reply_markup={"inline_keyboard": buttons},
-        )
+        for ref in message_id.split(","):
+            chat, mid = ref.split(":")
+            await self.call(
+                "editMessageText",
+                chat_id=chat,
+                message_id=int(mid),
+                text=text,
+                parse_mode="HTML",
+                disable_web_page_preview=True,
+                reply_markup={"inline_keyboard": buttons},
+            )
 
     async def get_updates(self, offset: int, timeout: int = 25) -> list[dict[str, Any]]:
         res: list[dict[str, Any]] = await self.call(

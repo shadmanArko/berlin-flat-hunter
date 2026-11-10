@@ -86,7 +86,7 @@ async def handle_callbacks(s: Session, tg: TelegramSender) -> int:
     for u in updates:
         offset = u["update_id"] + 1
         cb = u.get("callback_query")
-        if not cb or str(cb["message"]["chat"]["id"]) not in {tg.chat_id, tg.p0_chat_id}:
+        if not cb or str(cb["message"]["chat"]["id"]) not in tg.all_chat_ids:
             continue  # ignore anything from other chats
         _, lid, action = cb["data"].split(":")
         if action in ("applied", "not_interested"):

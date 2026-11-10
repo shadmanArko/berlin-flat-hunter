@@ -124,7 +124,7 @@ class Notification(Base):
     channel: Mapped[str] = mapped_column(String(24))
     kind: Mapped[str] = mapped_column(String(24))  # instant | digest | needs_review | source_added
     sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    message_id: Mapped[str | None] = mapped_column(String(64))
+    message_id: Mapped[str | None] = mapped_column(String(255))
 
 
 class UserAction(Base):
