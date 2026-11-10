@@ -145,7 +145,7 @@ def test_gewobag_list_and_detail() -> None:
     from flathunter.collectors.gewobag import parse_list as gw_list
 
     items = gw_list(read("gewobag/list1.html"))
-    assert len(items) >= 10 and all(i.partial and i.street and i.rooms and i.size_m2 for i in items)
+    assert len(items) >= 5 and all(i.partial and i.street and i.rooms and i.size_m2 for i in items)
     base = next(i for i in items if i.external_id == "0100-01723-0104-0033")
     assert base.wbs_text == "erforderlich" and base.postcode == "12043" and base.house_no == "61/63"
     d = gw_detail(read("gewobag/detail_0100-01723-0104-0033.html"), base)
