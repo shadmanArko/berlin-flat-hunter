@@ -20,6 +20,9 @@ SWAP = re.compile(r"nur\s+f(?:ü|ue)r\s+wohnungstausch|wohnungstausch\s+(?:erfor
 WHEELCHAIR = re.compile(r"rollstuhl\w*[^.]{0,60}\bnur\b|nur\s+f(?:ü|ue)r\s+rollstuhl", re.I)
 COOP = re.compile(r"genossenschaftsmitgli|mitgliedschaft\s+(?:in\s+der\s+genossenschaft\s+)?erforderlich", re.I)
 WOHNKUECHE = re.compile(r"wohnk(?:ü|ue)che|k(?:ü|ue)che\s+als\s+zimmer", re.I)
+NOT_A_FLAT = re.compile(
+    r"stellplatz|stellplätze|stellplaetze|tiefgarage|garage|pkw-|gewerbe|lagerraum|kellerraum|büro", re.I
+)
 GROUP = re.compile(r"berechtigungsgruppe[n]?\s+((?:[A-Z]\b[\s,/und&]*)+)", re.I)
 
 
@@ -79,6 +82,9 @@ def classify(f: dict[str, Any], profile: Profile, cfg: dict[str, Any] | None = N
     def out(cls: str, reason: str) -> Verdict:
         return Verdict(cls, reason, rent, notes)
 
+    no_size = f.get("rooms") is None and f.get("size_m2") is None
+    if NOT_A_FLAT.search(f.get("title") or text[:120]) or (no_size and (f.get("rent_cold") or 0) < 300):
+        return out("ineligible", "not_an_apartment")
     if SWAP.search(text):
         return out("ineligible", "only_for_wohnungstausch")
     if STUDENT.search(text):

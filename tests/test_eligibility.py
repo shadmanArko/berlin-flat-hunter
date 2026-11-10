@@ -96,3 +96,11 @@ def test_wohnkueche_review_and_excluded_district() -> None:
     assert classify(f(text="große Wohnküche"), P).eligibility_class == "needs_review"
     assert classify(f(text="große Wohnküche", rooms=2.0), P).eligibility_class == "P0_special_need"
     assert classify(f(), Profile(districts_excluded=["lichtenberg"])).reason == "excluded_district"
+
+
+def test_parking_and_commercial_are_not_apartments() -> None:
+    for title in ["Stellplatz zu vermieten", "Offener Stellplatz in der Tiefgarage", "PKW-Stellplatz im Hof"]:
+        v = classify(f(rooms=None, size_m2=None, rent_cold=70.0, operating_costs=None, title=title), P)
+        assert v.eligibility_class == "ineligible" and v.reason == "not_an_apartment"
+    v = classify(f(rooms=None, size_m2=None, rent_cold=57.5, operating_costs=None, title="x"), P)
+    assert v.reason == "not_an_apartment"

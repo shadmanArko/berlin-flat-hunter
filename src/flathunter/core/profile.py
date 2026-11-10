@@ -23,6 +23,8 @@ class Profile(BaseModel):
     districts_preferred: list[str] = Field(default_factory=list)
     districts_excluded: list[str] = Field(default_factory=list)
     must_have: list[str] = Field(default_factory=list)
+    alert_min_rooms: float = 2
+    alert_min_size_m2: float = 45
     move_in_earliest: date | None = None
     move_in_latest: date | None = None
 
@@ -55,6 +57,8 @@ def load_profile(path: Path | None = None) -> Profile:
         districts_preferred=search.get("districts_preferred") or [],
         districts_excluded=search.get("districts_excluded") or [],
         must_have=search.get("must_have") or [],
+        alert_min_rooms=search.get("alert_min_rooms", 2),
+        alert_min_size_m2=search.get("alert_min_size_m2", 45),
         move_in_earliest=_d(search.get("move_in_earliest")),
         move_in_latest=_d(search.get("move_in_latest")),
     )

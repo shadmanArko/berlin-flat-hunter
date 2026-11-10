@@ -95,3 +95,13 @@ def test_render_has_buttons_and_escapes(sessions: sessionmaker[Session]) -> None
         text, buttons = render_alert(r.listing, P)
         assert "<b>&Co" not in text and "&lt;b&gt;" in text
         assert [b["callback_data"].split(":")[2] for b in buttons[0]] == ["applied", "not_interested", "letter"]
+
+
+async def test_tiny_flats_are_not_alerted_instantly(sessions: sessionmaker[Session]) -> None:
+    sender = ConsoleSender()
+    with sessions() as s:
+        ensure_source(s, "a", "A", 1)
+        evaluate(upsert(s, flat("a", "1", rooms=1.0, size_m2=30.0)).listing, P)
+        evaluate(upsert(s, flat("a", "2", street="Zweite Str.", rooms=2.0, size_m2=40.0)).listing, P)
+        s.commit()
+        assert await dispatch_new(s, sender, P) == 0

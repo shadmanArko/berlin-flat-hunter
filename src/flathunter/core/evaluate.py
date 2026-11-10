@@ -19,6 +19,7 @@ def listing_facts(li: Listing) -> dict[str, object]:
         "wbs_required_rooms": li.wbs_required_rooms,
         "district": li.district,
         "features": li.features,
+        "title": li.title,
         "text": f"{li.title}\n{li.raw_text}",
     }
 

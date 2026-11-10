@@ -94,6 +94,11 @@ class TelegramSender:
             reply_markup={"inline_keyboard": buttons},
         )
 
+    async def delete(self, message_id: str) -> None:
+        for ref in message_id.split(","):
+            chat, mid = ref.split(":")
+            await self.call("deleteMessage", chat_id=chat, message_id=int(mid))
+
     async def get_updates(self, offset: int, timeout: int = 25) -> list[dict[str, Any]]:
         res: list[dict[str, Any]] = await self.call(
             "getUpdates", offset=offset, timeout=timeout, allowed_updates=["callback_query"]

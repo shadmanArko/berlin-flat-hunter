@@ -22,6 +22,8 @@ search:
   districts_preferred: []
   districts_excluded: []
   must_have: []
+  alert_min_rooms: 2      # smaller flats are stored but not alerted instantly
+  alert_min_size_m2: 45
   move_in_earliest: null
   move_in_latest: null
 documents_folder: null
