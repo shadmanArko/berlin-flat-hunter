@@ -37,3 +37,9 @@ def test_fuzzy_match_tolerances() -> None:
     assert not is_fuzzy_match(mk(), mk(size_m2=72.0))
     assert not is_fuzzy_match(mk(), mk(rent_cold=500.0))
     assert not is_fuzzy_match(mk(), mk(house_no="14"))
+
+
+def test_house_number_ranges_overlap() -> None:
+    assert is_fuzzy_match(mk(house_no="61/63"), mk(house_no="63", floor=None))
+    assert not is_fuzzy_match(mk(house_no="12"), mk(house_no="14"))
+    assert not is_fuzzy_match(mk(house_no="12a"), mk(house_no="12b"))

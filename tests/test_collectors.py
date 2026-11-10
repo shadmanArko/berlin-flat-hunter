@@ -135,3 +135,30 @@ async def test_degewo_collector_end_to_end() -> None:
     assert len({i.external_id for i in items}) == len(items) == len({i.external_id for i in l1 + l2})
     full = [i for i in items if not i.partial]
     assert [i.external_id for i in full] == list(detail_by_slug)
+
+
+# --- gewobag --------------------------------------------------------------------------------
+
+
+def test_gewobag_list_and_detail() -> None:
+    from flathunter.collectors.gewobag import parse_detail as gw_detail
+    from flathunter.collectors.gewobag import parse_list as gw_list
+
+    items = gw_list(read("gewobag/list1.html"))
+    assert len(items) >= 10 and all(i.partial and i.street and i.rooms and i.size_m2 for i in items)
+    base = next(i for i in items if i.external_id == "0100-01723-0104-0033")
+    assert base.wbs_text == "erforderlich" and base.postcode == "12043" and base.house_no == "61/63"
+    d = gw_detail(read("gewobag/detail_0100-01723-0104-0033.html"), base)
+    assert (d.rent_cold, d.operating_costs, d.heating_costs, d.rent_warm) == (803.79, 236.0, 300.0, 1339.79)
+    assert (d.rooms, d.size_m2, d.floor, d.construction_year) == (3.0, 101.63, 3, 1900)
+    assert d.energy_carrier == "Fernwärme" and "min. 3 Räume" in d.description
+
+
+def test_gewobag_layout_change() -> None:
+    from flathunter.collectors.gewobag import parse_detail as gw_detail
+    from flathunter.collectors.gewobag import parse_list as gw_list
+
+    base = gw_list(read("gewobag/list1.html"))[0]
+    with pytest.raises(LayoutChangedError):
+        gw_detail("<html><main>redesign</main></html>", base)
+    assert gw_list("<html><body>redesign</body></html>") == []

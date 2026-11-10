@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from flathunter.collectors.base import Collector
 from flathunter.collectors.degewo import DegewoCollector
+from flathunter.collectors.gewobag import GewobagCollector
 from flathunter.collectors.inberlinwohnen import InBerlinWohnenCollector
 from flathunter.core.evaluate import evaluate
 from flathunter.core.models import Listing, ListingSource
@@ -21,6 +22,7 @@ from flathunter.core.store import UpsertResult, ensure_source, mark_missing, rec
 COLLECTORS: dict[str, type[Collector]] = {
     InBerlinWohnenCollector.source_id: InBerlinWohnenCollector,
     DegewoCollector.source_id: DegewoCollector,
+    GewobagCollector.source_id: GewobagCollector,
 }
 
 

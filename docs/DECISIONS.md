@@ -48,3 +48,6 @@ gitleaks-action failed on a repo whose first commit has no parent (`<first>^..` 
 
 ## 2026-11-10 — Telegram design
 Plain httpx client, long-polling `getUpdates` for button callbacks (no webhook/public URL needed). Callbacks from any chat other than the configured ones are ignored. Without credentials the same code runs through a console sender (dry run).
+
+## 2026-11-10 — Remaining Tier 1 collectors deferred
+inberlinwohnen already lists every city-owned company, so eligibility coverage is complete. Built gewobag (cheap, newest-first). howoge/wbm/stadtundland/berlinovo/gesobau are queued after M3 and should be justified by measured latency vs. inberlinwohnen. Deviation from M2's "remaining Tier 1 collectors".

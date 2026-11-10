@@ -28,7 +28,23 @@ def trim_ibw(html: str) -> str:
     return "<html><body>\n" + "\n".join(f"<div {s}></div>" for s in keep) + "\n</body></html>"
 
 
+async def capture_gewobag() -> None:
+    from flathunter.collectors.gewobag import LIST_PARAMS, LIST_URL, GewobagCollector, parse_list
+
+    c = GewobagCollector()
+    try:
+        page = await c.get(LIST_URL, params=LIST_PARAMS)
+        (FX / "gewobag").mkdir(exist_ok=True)
+        (FX / "gewobag" / "list1.html").write_text(trim_degewo(page))
+        for i in parse_list(page)[:2]:
+            (FX / "gewobag" / f"detail_{i.external_id}.html").write_text(trim_degewo(await c.get(i.url)))
+    finally:
+        await c.aclose()
+
+
 async def main() -> None:
+    if sys.argv[1:] == ["gewobag"]:
+        return await capture_gewobag()
     c = DegewoCollector()
     try:
         for p in (1, 2, 3):
