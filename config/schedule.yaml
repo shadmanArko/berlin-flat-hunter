@@ -1,0 +1,7 @@
+# Polling cadence (SPEC §10). Times are Europe/Berlin.
+day_start: "06:00"
+night_start: "23:00"
+jitter: 0.2            # ±20 % on every interval
+night_interval_minutes: 15
+run_timeout_seconds: 180
+failure_alert_after: 3       # consecutive failures before a Telegram warning

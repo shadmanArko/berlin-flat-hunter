@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -76,11 +77,22 @@ def main() -> None:
     r.add_argument("--max-pages", type=int, default=None)
     r.add_argument("--notify", action="store_true", help="send alerts (Telegram, or console if no token)")
     sub.add_parser("reevaluate", help="re-run eligibility + scoring on all stored listings")
+    sub.add_parser("watch", help="run all enabled sources on schedule, forever")
     sub.add_parser("bot", help="poll Telegram button callbacks")
     args = ap.parse_args()
     load_dotenv()
     if args.cmd == "reevaluate":
         _reevaluate()
+        return
+    if args.cmd == "watch":
+        import logging
+
+        from flathunter.ops.scheduler import run_watcher
+
+        Path("logs").mkdir(exist_ok=True)
+        logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+        tg = TelegramSender.from_env()
+        asyncio.run(run_watcher(get_session_factory(), tg or ConsoleSender(), tg))
         return
     if args.cmd == "bot":
         sys.exit(asyncio.run(_bot()))

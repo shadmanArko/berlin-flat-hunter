@@ -51,3 +51,9 @@ Plain httpx client, long-polling `getUpdates` for button callbacks (no webhook/p
 
 ## 2026-11-10 — Remaining Tier 1 collectors deferred
 inberlinwohnen already lists every city-owned company, so eligibility coverage is complete. Built gewobag (cheap, newest-first). howoge/wbm/stadtundland/berlinovo/gesobau are queued after M3 and should be justified by measured latency vs. inberlinwohnen. Deviation from M2's "remaining Tier 1 collectors".
+
+## 2026-11-10 — Zero-cost local operation (replaces VPS for now)
+Owner does not want to pay for hosting. The watcher runs on the owner's Mac via a launchd LaunchAgent (`scripts/launchd/`), with `caffeinate -i` to prevent idle sleep. Polling uses no LLM, so no Claude tokens are spent; tokens are reserved for optional maintenance (repairing broken collectors). Trade-off: no polling while the Mac is off, asleep or offline. Catch-up on wake is automatic (alerts cover all open, never-alerted flats).
+- Scheduler is a plain asyncio loop per source (no APScheduler): per-source interval from `config/sources.yaml`, 5 min 06–23 Berlin and 15 min at night, ±20 % jitter, 20 s stagger, 180 s run timeout, loops never die.
+- No HTTP `/health` endpoint: nothing external polls it in local mode. `logs/health.json` plus Telegram warnings (3 consecutive failures, and recovery) replace it.
+- VPS, GitHub-issue-on-failure and backups from M3 are postponed.
