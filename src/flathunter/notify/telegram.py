@@ -84,16 +84,15 @@ class TelegramSender:
                     raise
 
     async def _edit_one(self, chat: str, mid: str, text: str, buttons: list[list[dict[str, str]]]) -> None:
-        if True:
-            await self.call(
-                "editMessageText",
-                chat_id=chat,
-                message_id=int(mid),
-                text=text,
-                parse_mode="HTML",
-                disable_web_page_preview=True,
-                reply_markup={"inline_keyboard": buttons},
-            )
+        await self.call(
+            "editMessageText",
+            chat_id=chat,
+            message_id=int(mid),
+            text=text,
+            parse_mode="HTML",
+            disable_web_page_preview=True,
+            reply_markup={"inline_keyboard": buttons},
+        )
 
     async def get_updates(self, offset: int, timeout: int = 25) -> list[dict[str, Any]]:
         res: list[dict[str, Any]] = await self.call(
