@@ -89,6 +89,14 @@ async def _notice(sender: Sender, text: str) -> None:
         log.exception("could not send notice")
 
 
+def _short(error: str) -> str:
+    """First line only; hide the DB-driver essay. Database outages get a plain-language hint."""
+    first = error.splitlines()[0][:160]
+    if "OperationalError" in error and "5433" in error:
+        return "Datenbank nicht erreichbar – läuft Docker Desktop? (docker compose up -d)"
+    return first
+
+
 def _write_health(state: dict[str, Any]) -> None:
     p = ROOT / "logs"
     p.mkdir(exist_ok=True)

@@ -85,3 +85,11 @@ async def test_loop_stores_alerts_and_survives_failures(sessions: sessionmaker[S
         )
     assert not health["bad"]["ok"]
     assert any("fehlgeschlagen" in m and "bad" in m for m in rec.sent)
+
+
+def test_short_error_hides_driver_noise() -> None:
+    from flathunter.ops.scheduler import _short
+
+    noisy = "OperationalError: connection to server at ::1, port 5433 failed\nMultiple attempts failed\n- host..."
+    assert "Docker" in _short(noisy)
+    assert _short("FetchError: HTTP 500\nmore") == "FetchError: HTTP 500"
